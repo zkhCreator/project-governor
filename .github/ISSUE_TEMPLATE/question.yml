@@ -1,0 +1,31 @@
+name: Usage question
+description: Ask a public installation or usage question.
+title: "[Question]: "
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Describe what you are trying to accomplish.
+    validations:
+      required: true
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What you tried
+      description: Include commands and sanitized output when useful.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Project Governor version or commit
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-safety confirmation
+      options:
+        - label: I removed credentials, private code, personal data, and confidential evidence.
+          required: true

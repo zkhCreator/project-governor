@@ -66,7 +66,7 @@ codex plugin add project-governor@personal
 本地开发安装：
 
 ```bash
-git clone git@github.com:zkhCreator/agent-team-skills.git
+git clone https://github.com/zkhCreator/agent-team-skills.git
 codex plugin marketplace add /absolute/path/to/agent-team-skills
 codex plugin add project-governor@personal
 ```
@@ -201,6 +201,29 @@ plugins/project-governor/
 ```
 
 插件不包含 MCP server、托管服务、外部数据库或 SaaS 依赖。
+
+## 公开仓库规范
+
+本仓库按 [Apache License 2.0](LICENSE) 为公开协作做好准备。发布任何版本前，先运行：
+
+```bash
+python3 scripts/public_release_audit.py --root .
+python3 -m unittest discover -s tests -v
+python3 plugins/project-governor/scripts/governor.py eval
+```
+
+自动审计会检查当前候选树中的社区文件、常见凭据材料、个人绝对路径、生成物、Python 文件级结构化注释、JSON 有效性、GitHub Actions 权限和公开插件元数据。它不能替代[公开发布规范](docs/PUBLIC_RELEASE.md)要求的完整历史、所有权与 GitHub 远端设置审查。
+
+修改仓库可见性前，还需运行 `python3 scripts/public_release_audit.py --root . --history`。非 noreply 的提交邮箱必须由作者明确确认；使用确认参数前请先阅读公开发布规范。
+
+项目政策：
+
+- [安全问题报告](SECURITY.md)
+- [隐私与本地数据处理](PRIVACY.md)
+- [贡献指南](CONTRIBUTING.md)
+- [行为准则](CODE_OF_CONDUCT.md)
+- [支持范围](SUPPORT.md)
+- [变更记录](CHANGELOG.md)
 
 ## 当前边界
 

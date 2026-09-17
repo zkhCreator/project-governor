@@ -66,7 +66,7 @@ codex plugin add project-governor@personal
 For local development:
 
 ```bash
-git clone git@github.com:zkhCreator/agent-team-skills.git
+git clone https://github.com/zkhCreator/agent-team-skills.git
 codex plugin marketplace add /absolute/path/to/agent-team-skills
 codex plugin add project-governor@personal
 ```
@@ -201,6 +201,29 @@ plugins/project-governor/
 ```
 
 The plugin does not include an MCP server, hosted service, external database, or SaaS dependency.
+
+## Public repository standard
+
+This repository is prepared for public collaboration under the [Apache License 2.0](LICENSE). Before publishing a revision, run:
+
+```bash
+python3 scripts/public_release_audit.py --root .
+python3 -m unittest discover -s tests -v
+python3 plugins/project-governor/scripts/governor.py eval
+```
+
+The automated audit checks the current candidate tree for required community files, common credential material, private absolute paths, generated artifacts, structured Python module comments, JSON validity, workflow permissions, and public plugin metadata. It does not replace the mandatory full-history, ownership, and GitHub-settings review in the [public release standard](docs/PUBLIC_RELEASE.md).
+
+Before changing repository visibility, also run `python3 scripts/public_release_audit.py --root . --history`. Non-noreply commit emails require deliberate acknowledgment; see the release standard before using the acknowledgment flag.
+
+Project policies:
+
+- [Security reporting](SECURITY.md)
+- [Privacy and local data handling](PRIVACY.md)
+- [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Support](SUPPORT.md)
+- [Changelog](CHANGELOG.md)
 
 ## Current boundaries
 

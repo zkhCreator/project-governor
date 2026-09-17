@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a reproducible Project Governor problem.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include credentials, proprietary source, personal data, or private screenshots. Security vulnerabilities belong in a private security advisory.
+  - type: input
+    id: version
+    attributes:
+      label: Project Governor version or commit
+      placeholder: 0.1.0 or commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+      description: What happened, including the verdict and exit code when relevant?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Use a synthetic repository or redact all confidential content.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include macOS, Python, Codex CLI, Xcode, and simulator versions that matter.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-safety confirmation
+      options:
+        - label: I removed secrets, personal data, proprietary source, and confidential evidence.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true

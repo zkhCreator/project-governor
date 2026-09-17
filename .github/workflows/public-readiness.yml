@@ -1,0 +1,39 @@
+name: Public readiness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-readiness-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.13"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Audit public-release safety
+        run: python3 scripts/public_release_audit.py --root .
+      - name: Compile Python sources
+        run: python3 -m compileall -q scripts plugins/project-governor/scripts plugins/project-governor/evals
+      - name: Test public-release audit
+        run: python3 -m unittest discover -s tests -v
+      - name: Run Project Governor tests
+        run: python3 plugins/project-governor/scripts/governor.py eval
