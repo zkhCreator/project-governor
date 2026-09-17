@@ -59,14 +59,14 @@ inspect → 用户确认 → initialize
 先添加仓库 marketplace，再安装插件：
 
 ```bash
-codex plugin marketplace add zkhCreator/agent-team-skills
+codex plugin marketplace add zkhCreator/project-governor
 codex plugin add project-governor@personal
 ```
 
 本地开发安装：
 
 ```bash
-git clone https://github.com/zkhCreator/agent-team-skills.git
+git clone https://github.com/zkhCreator/project-governor.git
 codex plugin marketplace add /absolute/path/to/agent-team-skills
 codex plugin add project-governor@personal
 ```

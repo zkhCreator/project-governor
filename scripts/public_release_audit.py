@@ -259,6 +259,11 @@ def _audit_manifest(root: Path, errors: list[str]) -> None:
     repository = manifest.get("repository")
     if not isinstance(repository, str) or not repository.startswith("https://github.com/"):
         errors.append("Plugin manifest repository must be a public HTTPS GitHub URL")
+    homepage = manifest.get("homepage")
+    if not isinstance(homepage, str) or not homepage.startswith("https://github.com/"):
+        errors.append("Plugin manifest homepage must be a public HTTPS GitHub URL")
+    if manifest.get("license") != "Apache-2.0":
+        errors.append("Plugin manifest license must match the repository Apache-2.0 license")
     author_url = manifest.get("author", {}).get("url") if isinstance(manifest.get("author"), dict) else None
     if not isinstance(author_url, str) or not author_url.startswith("https://github.com/"):
         errors.append("Plugin author URL must be a public HTTPS GitHub profile")

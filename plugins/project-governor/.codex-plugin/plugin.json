@@ -6,7 +6,9 @@
     "name": "zkhCreator",
     "url": "https://github.com/zkhCreator"
   },
-  "repository": "https://github.com/zkhCreator/agent-team-skills",
+  "homepage": "https://github.com/zkhCreator/project-governor#readme",
+  "repository": "https://github.com/zkhCreator/project-governor",
+  "license": "Apache-2.0",
   "keywords": ["codex", "ios", "swiftui", "architecture", "design-review"],
   "skills": "./skills/",
   "interface": {

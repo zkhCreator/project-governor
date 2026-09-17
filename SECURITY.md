@@ -6,7 +6,7 @@ Security fixes are provided for the latest published `0.1.x` release and the cur
 
 ## Reporting a vulnerability
 
-Do not open a public issue for a suspected vulnerability or accidental disclosure. Use the repository's [private vulnerability reporting](https://github.com/zkhCreator/agent-team-skills/security/advisories/new) channel.
+Do not open a public issue for a suspected vulnerability or accidental disclosure. Use the repository's [private vulnerability reporting](https://github.com/zkhCreator/project-governor/security/advisories/new) channel.
 
 Include only the information needed to reproduce and assess the issue:
 

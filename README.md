@@ -59,14 +59,14 @@ UI changes are blocked when deterministic XCUITest scenarios or required runtime
 Install the repository marketplace and then the plugin:
 
 ```bash
-codex plugin marketplace add zkhCreator/agent-team-skills
+codex plugin marketplace add zkhCreator/project-governor
 codex plugin add project-governor@personal
 ```
 
 For local development:
 
 ```bash
-git clone https://github.com/zkhCreator/agent-team-skills.git
+git clone https://github.com/zkhCreator/project-governor.git
 codex plugin marketplace add /absolute/path/to/agent-team-skills
 codex plugin add project-governor@personal
 ```
