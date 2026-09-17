@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {"id": "ok-reuse-public-api", "category": "compliant", "expected": "pass", "holdout": false},
+    {"id": "ok-replace-old-entry", "category": "compliant", "expected": "pass", "holdout": false},
+    {"id": "ok-approved-shortcut", "category": "compliant", "expected": "pass", "holdout": true},
+    {"id": "ok-centralized-navigation", "category": "compliant", "expected": "pass", "holdout": true},
+    {"id": "arch-cross-module-internal-state", "category": "architecture-violation", "expected": "fail", "rule_id": "ARCH-002", "holdout": false},
+    {"id": "arch-duplicate-state-owner", "category": "architecture-violation", "expected": "fail", "rule_id": "ARCH-003", "holdout": false},
+    {"id": "arch-feature-edits-contract", "category": "architecture-violation", "expected": "blocked", "rule_id": "ARCH-004", "holdout": true},
+    {"id": "arch-unclear-capability-owner", "category": "architecture-violation", "expected": "fail", "rule_id": "ARCH-001", "holdout": true},
+    {"id": "ui-duplicate-entry", "category": "ui-violation", "expected": "fail", "rule_id": "UI-003", "holdout": false},
+    {"id": "ui-missing-error-recovery", "category": "ui-violation", "expected": "fail", "rule_id": "UI-004", "holdout": false},
+    {"id": "ui-custom-back-breaks-gesture", "category": "ui-violation", "expected": "fail", "rule_id": "IOS-002", "holdout": true},
+    {"id": "ui-no-runtime-proof", "category": "missing-evidence", "expected": "blocked", "rule_id": "IOS-005", "holdout": true}
+  ]
+}

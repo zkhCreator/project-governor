@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project Governor Change Ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "reused_structures", "new_concepts", "new_entries", "new_interaction_patterns", "replaced_or_removed", "affected_existing_tasks", "exception_requests", "file_comment_assumptions"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "reused_structures": {"type": "array", "items": {"type": "string"}},
+    "new_concepts": {"type": "array", "items": {"type": "string"}},
+    "new_entries": {"type": "array", "items": {"type": "string"}},
+    "new_interaction_patterns": {"type": "array", "items": {"type": "string"}},
+    "replaced_or_removed": {"type": "array", "items": {"type": "string"}},
+    "affected_existing_tasks": {"type": "array", "items": {"type": "string"}},
+    "exception_requests": {"type": "array", "items": {"type": "string"}},
+    "file_comment_assumptions": {"type": "array", "items": {"type": "string"}}
+  }
+}

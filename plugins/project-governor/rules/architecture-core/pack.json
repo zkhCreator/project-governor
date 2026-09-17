@@ -1,0 +1,47 @@
+{
+  "id": "architecture-core",
+  "version": "0.1.0",
+  "reviewer": "architecture",
+  "rules": [
+    {
+      "id": "ARCH-001",
+      "title": "Keep capability ownership explicit",
+      "level": "required",
+      "scope": "Module and feature ownership",
+      "applies_when": "A change adds or moves a business capability.",
+      "evidence": "Change spec, module boundaries, public interfaces, and affected call sites.",
+      "exceptions": "An approved decision record may authorize a temporary cross-module owner.",
+      "decision_limit": "Do not infer ownership only from the current file location."
+    },
+    {
+      "id": "ARCH-002",
+      "title": "Use approved public boundaries",
+      "level": "required",
+      "scope": "Cross-module dependencies",
+      "applies_when": "One module reads or mutates another module's behavior or state.",
+      "evidence": "Imports, public protocols or APIs, dependency direction, and tests.",
+      "exceptions": "Only a matching approved decision record.",
+      "decision_limit": "Do not mark a dependency invalid solely because two types live in different directories."
+    },
+    {
+      "id": "ARCH-003",
+      "title": "Preserve state ownership",
+      "level": "required",
+      "scope": "Mutable state and side effects",
+      "applies_when": "The change creates, copies, caches, or mutates state.",
+      "evidence": "State declarations, mutation paths, synchronization behavior, and regression checks.",
+      "exceptions": "Approved replicated state with an explicit synchronization contract.",
+      "decision_limit": "Do not demand a new abstraction when the existing owner is adequate."
+    },
+    {
+      "id": "ARCH-004",
+      "title": "Keep governance definitions outside feature changes",
+      "level": "required",
+      "scope": "Governance integrity",
+      "applies_when": "A governed feature change is prepared or verified.",
+      "evidence": "Protected-path digest and the change baseline.",
+      "exceptions": "None inside a feature run; use recalibration.",
+      "decision_limit": "A feature reviewer cannot waive this rule."
+    }
+  ]
+}

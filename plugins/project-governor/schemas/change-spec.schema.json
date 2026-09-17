@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project Governor Change Specification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "change_id", "goal", "acceptance", "module", "ui_impact", "ui_states", "scope", "non_goals", "baseline_governance_digest"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "change_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "goal": {"type": "string", "minLength": 1},
+    "acceptance": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "module": {"type": "string", "minLength": 1},
+    "ui_impact": {"enum": ["auto", "yes", "no"]},
+    "ui_states": {"type": "array", "items": {"type": "string"}},
+    "scope": {"type": "array", "items": {"type": "string"}},
+    "non_goals": {"type": "array", "items": {"type": "string"}},
+    "baseline_governance_digest": {"type": "string", "minLength": 64, "maxLength": 64}
+  }
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Project Governor Init"
+  short_description: "Initialize and calibrate iOS project governance"
+  default_prompt: "Use $project-governor-init to inspect and initialize governance for this iOS SwiftUI project."
+policy:
+  allow_implicit_invocation: true

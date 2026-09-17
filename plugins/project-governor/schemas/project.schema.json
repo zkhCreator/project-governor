@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project Governor Project Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "adapter", "ios", "commands", "review_policy", "protected_paths", "rule_packs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project_id": {"type": "string", "minLength": 1},
+    "adapter": {"const": "ios-swiftui"},
+    "container": {"type": ["string", "null"]},
+    "container_type": {"type": ["string", "null"], "enum": ["workspace", "project", null]},
+    "scheme": {"type": ["string", "null"]},
+    "target": {"type": ["string", "null"]},
+    "ios": {"type": "object"},
+    "commands": {"type": "array"},
+    "ui_scenarios": {"type": "array"},
+    "review_policy": {"type": "object"},
+    "protected_paths": {"type": "array", "items": {"type": "string"}},
+    "rule_packs": {"type": "array", "items": {"type": "string"}}
+  }
+}

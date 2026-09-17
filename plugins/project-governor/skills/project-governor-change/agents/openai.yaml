@@ -1,0 +1,6 @@
+interface:
+  display_name: "Project Governor Change"
+  short_description: "Implement and verify a governed iOS change"
+  default_prompt: "Use $project-governor-change to implement this change and run the complete governance gate."
+policy:
+  allow_implicit_invocation: true

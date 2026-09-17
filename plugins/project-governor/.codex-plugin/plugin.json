@@ -1,0 +1,25 @@
+{
+  "name": "project-governor",
+  "version": "0.1.0",
+  "description": "Govern iOS SwiftUI changes with project contracts, evidence, and independent review.",
+  "author": {
+    "name": "zkhCreator",
+    "url": "https://github.com/zkhCreator"
+  },
+  "repository": "https://github.com/zkhCreator/agent-team-skills",
+  "keywords": ["codex", "ios", "swiftui", "architecture", "design-review"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Project Governor",
+    "shortDescription": "Evidence-bound governance for iOS SwiftUI changes.",
+    "longDescription": "Initialize project contracts, implement bounded changes, and gate them with automated checks plus isolated architecture and UI review.",
+    "developerName": "zkhCreator",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": [
+      "Initialize Project Governor for this iOS SwiftUI repository.",
+      "Implement this change under the project's governance contract.",
+      "Independently review the latest Project Governor candidate."
+    ]
+  }
+}

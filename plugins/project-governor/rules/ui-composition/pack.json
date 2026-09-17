@@ -1,0 +1,57 @@
+{
+  "id": "ui-composition",
+  "version": "0.1.0",
+  "reviewer": "ui",
+  "rules": [
+    {
+      "id": "UI-001",
+      "title": "Protect the primary user task",
+      "level": "required",
+      "scope": "Information hierarchy",
+      "applies_when": "A visible surface gains, removes, or reorders content or actions.",
+      "evidence": "Approved task contract, before/after states, and interaction evidence.",
+      "exceptions": "An approved task-priority decision.",
+      "decision_limit": "Visual prominence is not automatically evidence of task priority."
+    },
+    {
+      "id": "UI-002",
+      "title": "Reuse an approved interaction before adding a new one",
+      "level": "preference",
+      "scope": "Interaction vocabulary",
+      "applies_when": "The change introduces a component, entry point, or interaction pattern.",
+      "evidence": "Change ledger, approved references, and related screens.",
+      "exceptions": "A documented mismatch between existing patterns and the new task.",
+      "decision_limit": "Reuse is semantic; visual similarity alone is insufficient."
+    },
+    {
+      "id": "UI-003",
+      "title": "Avoid unnecessary duplicate entry points",
+      "level": "required",
+      "scope": "Navigation and actions",
+      "applies_when": "Two entries appear to serve the same user, state, and operation.",
+      "evidence": "Entry locations, triggered behavior, frequency context, and approved shortcuts.",
+      "exceptions": "An approved high-frequency shortcut.",
+      "decision_limit": "Do not classify entries as duplicates from icon or label similarity alone."
+    },
+    {
+      "id": "UI-004",
+      "title": "Cover states introduced by the change",
+      "level": "required",
+      "scope": "Default, loading, empty, error, disabled, and recovery states",
+      "applies_when": "The feature can enter the corresponding state.",
+      "evidence": "Spec state list, tests, screenshots, and recovery interaction results.",
+      "exceptions": "A state proven impossible by the product contract.",
+      "decision_limit": "Do not require states that the feature cannot reach."
+    },
+    {
+      "id": "UI-005",
+      "title": "Preserve accessibility and localization",
+      "level": "required",
+      "scope": "User-visible UI",
+      "applies_when": "Text, controls, navigation, or semantics change.",
+      "evidence": "Accessibility identifiers or labels, supported locales, and rendered evidence.",
+      "exceptions": "Only a project contract that explicitly excludes the capability.",
+      "decision_limit": "Do not demand unsupported languages or themes."
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Project Governor Review"
+  short_description: "Run an independent evidence-only project review"
+  default_prompt: "Use $project-governor-review to independently review the latest governed candidate without editing it."
+policy:
+  allow_implicit_invocation: true

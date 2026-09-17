@@ -1,0 +1,57 @@
+{
+  "id": "ios-swiftui",
+  "version": "0.1.0",
+  "reviewer": "ui",
+  "rules": [
+    {
+      "id": "IOS-001",
+      "title": "Centralize navigation compatibility",
+      "level": "required",
+      "scope": "SwiftUI and UIKit navigation appearance",
+      "applies_when": "Navigation bars, titles, actions, sheets, or back presentation change.",
+      "evidence": "Existing design-system search, shared appearance implementation, and representative screens.",
+      "exceptions": "A project contract proving the screen uses an independent navigation system.",
+      "decision_limit": "Do not prescribe a per-screen patch when the project has a shared appearance layer."
+    },
+    {
+      "id": "IOS-002",
+      "title": "Preserve native back behavior",
+      "level": "required",
+      "scope": "Navigation pushes",
+      "applies_when": "A pushed destination or back presentation changes.",
+      "evidence": "Back tap, localized accessibility, and interactive edge-swipe results.",
+      "exceptions": "None unless the product explicitly replaces native navigation in an approved contract.",
+      "decision_limit": "Do not accept a visually similar custom back button as equivalent evidence."
+    },
+    {
+      "id": "IOS-003",
+      "title": "Separate pre-iOS-26 overrides from iOS 26 native behavior",
+      "level": "required",
+      "scope": "Navigation and toolbar appearance",
+      "applies_when": "The minimum supported iOS version is below 26.",
+      "evidence": "Availability guards plus evidence from the minimum supported runtime and iOS 26 or later.",
+      "exceptions": "Not applicable when the declared minimum supported version is 26 or later.",
+      "decision_limit": "Do not claim Liquid Glass or legacy compatibility from source inspection alone."
+    },
+    {
+      "id": "IOS-004",
+      "title": "Use project semantic colors and declared presentation policies",
+      "level": "required",
+      "scope": "Colors, localization, and appearance",
+      "applies_when": "Visible UI changes.",
+      "evidence": "Design tokens, supported locales, light/dark policy, and screenshots.",
+      "exceptions": "A project contract may intentionally lock one appearance or locale.",
+      "decision_limit": "Do not copy another project's colors as a compatibility fix."
+    },
+    {
+      "id": "IOS-005",
+      "title": "Require runtime evidence for interaction claims",
+      "level": "required",
+      "scope": "XCUITest and simulator evidence",
+      "applies_when": "A review claims navigation, scrolling, sheet, or state behavior works.",
+      "evidence": "Passing registered XCUITest scenarios and exported xcresult attachments.",
+      "exceptions": "None for a passing UI verdict.",
+      "decision_limit": "A screenshot alone cannot prove an interaction."
+    }
+  ]
+}
