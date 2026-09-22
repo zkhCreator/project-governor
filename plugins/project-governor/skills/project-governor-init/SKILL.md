@@ -12,7 +12,7 @@ Establish a project-specific governance contract without treating the current re
 1. Resolve the plugin root as the directory two levels above this skill's directory.
 2. Read [references/init-workflow.md](references/init-workflow.md).
 3. Run `python3 <plugin-root>/scripts/governor.py inspect --project-root <repo>` before proposing configuration.
-4. Present only decisions the scan cannot derive: ambiguous scheme/target, approved reference screens, supported appearance policy, and unresolved conflicts.
+4. Present only decisions the scan cannot derive: ambiguous scheme/target, approved reference screens when they exist, supported appearance policy, and unresolved conflicts. A project may explicitly start with no approved reference; that absence is not a conflict.
 5. After the user confirms those decisions, run `initialize` with the selected values. Initialization may write only `.governance/`.
 6. For later contract or exception changes, use `recalibrate`; do not combine recalibration with a feature run.
 

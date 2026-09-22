@@ -19,9 +19,9 @@
       "level": "preference",
       "scope": "Interaction vocabulary",
       "applies_when": "The change introduces a component, entry point, or interaction pattern.",
-      "evidence": "Change ledger, approved references, and related screens.",
+      "evidence": "Change ledger, design-system search, approved references when available, related screens, or an explicit novel-component declaration.",
       "exceptions": "A documented mismatch between existing patterns and the new task.",
-      "decision_limit": "Reuse is semantic; visual similarity alone is insufficient."
+      "decision_limit": "Reuse is semantic; visual similarity alone is insufficient. The absence of a prior reference is not missing evidence for a declared novel component."
     },
     {
       "id": "UI-003",

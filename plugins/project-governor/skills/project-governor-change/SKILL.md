@@ -12,9 +12,9 @@ Solve the user's task inside the approved project boundary, then let determinist
 1. Confirm `.governance/project.json` exists. If it does not, route to `$project-governor-init` rather than inventing defaults.
 2. Read [references/change-protocol.md](references/change-protocol.md).
 3. Read the file-level comment of every target code file before implementation. Treat documented purpose, responsibilities, inputs/outputs, non-goals, and design decisions as primary intent. If no file-level comment exists, record the assumption in the ledger and avoid overconfidence.
-4. Run `prepare` before editing product code. Keep `spec.json` factual and `ledger.json` concise.
+4. Search the approved references, design-system structures, and related product surfaces before choosing a reference mode. Run `prepare --reference-mode approved` when a relevant approved pattern exists, or `prepare --reference-mode novel` when the component is genuinely new and no semantic match exists. Use `auto` only while that classification remains safely inferable. Keep `spec.json` factual and `ledger.json` concise.
 5. Implement the change without editing protected governance paths.
 6. Update the ledger with reused structures, real additions, removals, affected tasks, and any needed exception.
 7. Run `verify`. A failure may be revised at most twice; each revision must be a new candidate and rerun every required check.
 
-If an exception, governance change, unavailable runtime, or conflicting standard is required, stop with `blocked`. Do not change the rule, reviewer, gate, or contract to make the current candidate pass.
+The absence of a prior component or reference sample does not by itself produce `blocked`; a declared novel component proceeds directly to the required reviewers. If an exception, governance change, unavailable runtime, required interaction evidence, or conflicting standard is required, stop with `blocked`. Do not change the rule, reviewer, gate, or contract to make the current candidate pass.

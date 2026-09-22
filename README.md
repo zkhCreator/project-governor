@@ -99,6 +99,8 @@ Use $project-governor-review to review the latest Project Governor candidate.
 
 The initialization skill intentionally separates read-only inspection from writes. It asks for confirmation when the Xcode container, scheme, product preference, reference screen, or other contract decision cannot be safely inferred.
 
+For a genuinely new component with no semantically relevant approved reference, prepare the change with `--reference-mode novel`. The candidate proceeds directly to architecture/UI review; the missing prior sample does not itself block the run. Active rules and required build, interaction, accessibility, localization, state, and regression evidence still apply.
+
 ## Runtime CLI
 
 The bundled runtime exposes seven stable commands:

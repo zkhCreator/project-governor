@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 from . import VERSION
 from .checks import run_automatic_checks, run_ui_checks
@@ -166,6 +166,7 @@ def verify_change(root: Path, change_id: str) -> Dict[str, Any]:
         "evidence_digest": evidence_manifest["digest"],
         "changed_paths": changed,
         "ui_required": requires_ui,
+        "reference_mode": spec.get("reference_mode", "auto"),
         "navigation_changed": navigation_changed,
         "required_reviewers": ["architecture"] + (["ui"] if requires_ui else []),
         "automatic_checks": automatic_checks,

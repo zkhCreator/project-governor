@@ -108,8 +108,10 @@ def validate_spec(value: Any) -> Dict[str, Any]:
         "non_goals",
         "baseline_governance_digest",
     }
+    allowed = required | {"reference_mode"}
     _require_keys(spec, required, "spec.json")
-    _reject_extra(spec, required, "spec.json")
+    _reject_extra(spec, allowed, "spec.json")
+    spec.setdefault("reference_mode", "auto")
     if spec["schema_version"] != 1:
         raise GovernanceError("error", "Unsupported spec schema")
     if not isinstance(spec["change_id"], str) or not re.match(r"^[a-z0-9][a-z0-9-]*$", spec["change_id"]):
@@ -124,6 +126,8 @@ def validate_spec(value: Any) -> Dict[str, Any]:
         _string_list(spec[field], field)
     if spec["ui_impact"] not in {"auto", "yes", "no"}:
         raise GovernanceError("error", "ui_impact must be auto, yes, or no")
+    if spec["reference_mode"] not in {"auto", "approved", "novel"}:
+        raise GovernanceError("error", "reference_mode must be auto, approved, or novel")
     return spec
 
 

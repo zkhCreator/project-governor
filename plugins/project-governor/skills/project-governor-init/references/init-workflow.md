@@ -17,6 +17,8 @@ Run `initialize` only after scheme ambiguity and the user's real product prefere
 
 Initialization creates `.governance` only. It must not add an Xcode target, rewrite source files, or approve all current UI as a reference baseline.
 
+An empty approved-reference index is valid. Do not block initialization merely because the product has no suitable reference screen or is creating its first component. Later changes must declare `reference_mode: novel` when no semantically relevant approved reference exists; this routes the candidate directly to review without treating the missing prior sample as missing evidence.
+
 ## Recalibrate
 
 Use `recalibrate --accept-current` after a deliberately reviewed contract edit. Add approved exceptions through a decision JSON containing `id`, `summary`, `status: approved`, `rationale`, and `exceptions`. Recalibration updates the locked governance digest and requires subsequent feature candidates to start from the new baseline.

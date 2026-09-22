@@ -1,6 +1,6 @@
 """
 Purpose: Exercise the Project Governor initialization-to-gate workflow across real process boundaries.
-Responsibilities: Verify initialization, explicit recalibration, change preparation, automatic checks, isolated review, and persisted pass results.
+Responsibilities: Verify initialization, explicit recalibration, novel-reference preparation, automatic checks, isolated review, and persisted pass results.
 Inputs/Outputs: A copied minimal iOS fixture and fake Codex CLI in; a complete temporary `.governance` run out.
 Non-goals: This test does not assess model judgment or launch an iOS simulator.
 Key Design Decisions: Product files are committed before governance starts so the test can add one non-UI candidate without requiring UI evidence.
@@ -87,8 +87,10 @@ class WorkflowIntegrationTests(unittest.TestCase):
                 [],
                 ["ProjectGovernorFixture/DomainHelper.swift"],
                 ["No UI changes."],
+                "novel",
             )
             self.assertEqual(prepared["verdict"], "pass")
+            self.assertEqual(prepared["spec"]["reference_mode"], "novel")
             (root / "ProjectGovernorFixture" / "DomainHelper.swift").write_text(
                 textwrap.dedent(
                     """\
@@ -142,7 +144,9 @@ class WorkflowIntegrationTests(unittest.TestCase):
 
             self.assertEqual(result["verdict"], "pass")
             self.assertEqual(result["review_verdicts"], {"architecture": "pass"})
-            self.assertTrue((root / ".governance" / ".runs" / result["run_id"] / "report.md").is_file())
+            run_root = root / ".governance" / ".runs" / result["run_id"]
+            self.assertEqual(read_json(run_root / "run.json")["reference_mode"], "novel")
+            self.assertTrue((run_root / "report.md").is_file())
 
 
 if __name__ == "__main__":

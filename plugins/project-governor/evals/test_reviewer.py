@@ -1,6 +1,6 @@
 """
 Purpose: Verify isolated reviewer orchestration with a fake Codex executable.
-Responsibilities: Confirm output-schema invocation, digest binding, strict validation, and persisted review output.
+Responsibilities: Confirm output-schema invocation, reference-mode routing, digest binding, strict validation, and persisted review output.
 Inputs/Outputs: Temporary candidate and fake CLI in; validated review assertion out.
 Non-goals: This test does not evaluate model quality.
 Key Design Decisions: The fake executable crosses the same process boundary as real `codex exec`.
@@ -52,7 +52,13 @@ class ReviewerIntegrationTests(unittest.TestCase):
     def tearDown(self):
         self.temporary.cleanup()
 
-    def _call_fake(self, source: str, timeout: int = 30):
+    def _call_fake(
+        self,
+        source: str,
+        timeout: int = 30,
+        reference_mode: str = "auto",
+        reviewer: str = "architecture",
+    ):
         fake = self.base / "fake-codex.py"
         fake.write_text(textwrap.dedent(source), encoding="utf-8")
         fake.chmod(0o755)
@@ -67,9 +73,10 @@ class ReviewerIntegrationTests(unittest.TestCase):
                     "change_id": "one",
                     "candidate_digest": self.candidate,
                     "contract_digest": self.contract,
+                    "reference_mode": reference_mode,
                 },
                 self.manifest,
-                "architecture",
+                reviewer,
                 "inherit",
                 timeout,
             )
@@ -79,12 +86,18 @@ class ReviewerIntegrationTests(unittest.TestCase):
             else:
                 os.environ["PROJECT_GOVERNOR_CODEX"] = previous
 
-    def _passing_source(self, extra_field: str = "") -> str:
+    def _passing_source(
+        self,
+        extra_field: str = "",
+        reference_mode: str = "auto",
+        reviewer: str = "architecture",
+    ) -> str:
         extra = f", 'solution': {extra_field!r}" if extra_field else ""
         return f"""\
             #!/usr/bin/env python3
             import json, pathlib, sys
             bundle = pathlib.Path.cwd()
+            prompt = sys.argv[-1]
             assert '--ephemeral' in sys.argv
             assert sys.argv[sys.argv.index('--sandbox') + 1] == 'read-only'
             assert pathlib.Path(sys.argv[sys.argv.index('--output-schema') + 1]).is_file()
@@ -92,10 +105,12 @@ class ReviewerIntegrationTests(unittest.TestCase):
             assert (bundle / 'inputs' / 'change' / 'spec.json').is_file()
             assert (bundle / 'inputs' / 'change' / 'ledger.json').is_file()
             assert not (bundle / 'inputs' / 'change' / 'result.json').exists()
+            assert 'Reference mode: {reference_mode}' in prompt
+            assert 'empty approved-reference list is not missing evidence by itself' in prompt
             output = sys.argv[sys.argv.index('-o') + 1]
             payload = {{
               'verdict': 'pass',
-              'reviewer': 'architecture',
+              'reviewer': '{reviewer}',
               'candidate_digest': '{self.candidate}',
               'contract_digest': '{self.contract}',
               'violations': [],
@@ -110,6 +125,15 @@ class ReviewerIntegrationTests(unittest.TestCase):
         review = self._call_fake(self._passing_source())
         self.assertEqual(review["verdict"], "pass")
         self.assertTrue((self.run_dir / "reviews" / "architecture.json").is_file())
+
+    def test_novel_component_without_reference_reaches_reviewer(self):
+        review = self._call_fake(
+            self._passing_source(reference_mode="novel", reviewer="ui"),
+            reference_mode="novel",
+            reviewer="ui",
+        )
+        self.assertEqual(review["verdict"], "pass")
+        self.assertTrue((self.run_dir / "reviews" / "ui.json").is_file())
 
     def test_invalid_json_blocks(self):
         source = """\

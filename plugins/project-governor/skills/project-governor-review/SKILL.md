@@ -14,4 +14,4 @@ Review only the frozen candidate and approved evidence. Do not participate in im
 3. If reviewing a bundle directly, use only its candidate snapshot, change spec and ledger, approved contracts/rules/references, and current evidence.
 4. Return the strict review schema. Report observations and conflicts; never prescribe a change.
 
-Unknown issues that are not covered by an active rule may be noted only as `unverified`; they cannot become a new blocking requirement. Missing interaction evidence produces `blocked`, not an inferred pass.
+Unknown issues that are not covered by an active rule may be noted only as `unverified`; they cannot become a new blocking requirement. For `reference_mode: novel`, review the component directly and do not block solely because no prior component or screenshot exists. Missing interaction evidence required by an active rule still produces `blocked`, not an inferred pass.

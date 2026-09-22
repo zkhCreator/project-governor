@@ -11,6 +11,7 @@
     "acceptance": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
     "module": {"type": "string", "minLength": 1},
     "ui_impact": {"enum": ["auto", "yes", "no"]},
+    "reference_mode": {"enum": ["auto", "approved", "novel"], "default": "auto"},
     "ui_states": {"type": "array", "items": {"type": "string"}},
     "scope": {"type": "array", "items": {"type": "string"}},
     "non_goals": {"type": "array", "items": {"type": "string"}},

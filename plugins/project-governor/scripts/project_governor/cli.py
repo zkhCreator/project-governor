@@ -64,6 +64,12 @@ def build_parser() -> argparse.ArgumentParser:
     prepare.add_argument("--acceptance", action="append", default=[], required=True)
     prepare.add_argument("--module", required=True)
     prepare.add_argument("--ui-impact", choices=["auto", "yes", "no"], default="auto")
+    prepare.add_argument(
+        "--reference-mode",
+        choices=["auto", "approved", "novel"],
+        default="auto",
+        help="How existing approved references apply; novel allows direct review without a prior sample",
+    )
     prepare.add_argument("--ui-state", action="append", default=[])
     prepare.add_argument("--scope", action="append", default=[])
     prepare.add_argument("--non-goal", action="append", default=[])
@@ -115,6 +121,7 @@ def _dispatch(args: argparse.Namespace) -> Dict[str, Any]:
             args.ui_state,
             args.scope,
             args.non_goal,
+            args.reference_mode,
         )
     if args.command == "verify":
         return verify_change(args.project_root, args.change_id)

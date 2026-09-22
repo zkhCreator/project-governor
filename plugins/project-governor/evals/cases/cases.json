@@ -5,6 +5,7 @@
     {"id": "ok-replace-old-entry", "category": "compliant", "expected": "pass", "holdout": false},
     {"id": "ok-approved-shortcut", "category": "compliant", "expected": "pass", "holdout": true},
     {"id": "ok-centralized-navigation", "category": "compliant", "expected": "pass", "holdout": true},
+    {"id": "ok-novel-component-without-reference", "category": "compliant", "expected": "pass", "rule_id": "UI-002", "holdout": true},
     {"id": "arch-cross-module-internal-state", "category": "architecture-violation", "expected": "fail", "rule_id": "ARCH-002", "holdout": false},
     {"id": "arch-duplicate-state-owner", "category": "architecture-violation", "expected": "fail", "rule_id": "ARCH-003", "holdout": false},
     {"id": "arch-feature-edits-contract", "category": "architecture-violation", "expected": "blocked", "rule_id": "ARCH-004", "holdout": true},

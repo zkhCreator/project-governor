@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import platform
 import re
-import shutil
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
@@ -229,7 +228,7 @@ def initialize_project(
             "UI Contract",
             {
                 "Primary task": "New UI must preserve the product's approved primary task and information hierarchy.",
-                "Composition": "Reuse an approved semantic interaction before adding another vocabulary. A new pattern is allowed only when the ledger makes the mismatch visible.",
+                "Composition": "Reuse an approved semantic interaction before adding another vocabulary. A new pattern is reviewable when the ledger makes the mismatch or the absence of a semantically relevant reference visible; missing prior samples alone do not block a declared novel component.",
                 "States": "Verify every reachable state named by the change specification. Interaction claims require runtime evidence.",
                 "iOS navigation": "Preserve native navigation bars, back accessibility, interactive pop, and the project's semantic colors. Centralize legacy appearance before bars are created, gate it below iOS 26, and preserve native iOS 26+ behavior.",
             },
@@ -292,6 +291,7 @@ def prepare_change(
     ui_states: Iterable[str],
     scope: Iterable[str],
     non_goals: Iterable[str],
+    reference_mode: str = "auto",
 ) -> Dict[str, Any]:
     """Create a feature spec and empty factual ledger before implementation."""
 
@@ -301,6 +301,8 @@ def prepare_change(
     accept = [item for item in acceptance if item]
     if not goal.strip() or not module.strip() or not accept:
         raise GovernanceError("error", "prepare requires a goal, module, and at least one acceptance criterion")
+    if reference_mode not in {"auto", "approved", "novel"}:
+        raise GovernanceError("error", "reference_mode must be auto, approved, or novel")
     change_root = governance_root(root) / "changes" / change_id
     if change_root.exists():
         raise GovernanceError("blocked", "Change already exists; use a new change id", {"change_id": change_id})
@@ -311,6 +313,7 @@ def prepare_change(
         "acceptance": accept,
         "module": module.strip(),
         "ui_impact": ui_impact,
+        "reference_mode": reference_mode,
         "ui_states": [item for item in ui_states if item],
         "scope": [item for item in scope if item],
         "non_goals": [item for item in non_goals if item],
@@ -341,6 +344,8 @@ def prepare_change(
                 *[f"- {item}" for item in accept],
                 "",
                 f"## Module\n\n{module.strip()}",
+                "",
+                f"## Reference mode\n\n{reference_mode}",
                 "",
                 "## Non-goals",
                 "",
