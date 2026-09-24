@@ -1,6 +1,6 @@
 """
 Purpose: Verify isolated reviewer orchestration with a fake Codex executable.
-Responsibilities: Confirm output-schema invocation, reference-mode routing, digest binding, strict validation, and persisted review output.
+Responsibilities: Confirm output-schema invocation, reference-mode routing, digest binding, actionable findings, strict validation, and persisted review output.
 Inputs/Outputs: Temporary candidate and fake CLI in; validated review assertion out.
 Non-goals: This test does not evaluate model quality.
 Key Design Decisions: The fake executable crosses the same process boundary as real `codex exec`.
@@ -107,6 +107,11 @@ class ReviewerIntegrationTests(unittest.TestCase):
             assert not (bundle / 'inputs' / 'change' / 'result.json').exists()
             assert 'Reference mode: {reference_mode}' in prompt
             assert 'empty approved-reference list is not missing evidence by itself' in prompt
+            assert 'concrete remediation' in prompt
+            if '{reviewer}' == 'ui':
+                assert 'inspect the actual pixels' in prompt
+                assert 'simctl first and use-computer if simctl cannot capture it' in prompt
+                assert 'registered XCUITest scenario to attach that state' in prompt
             output = sys.argv[sys.argv.index('-o') + 1]
             payload = {{
               'verdict': 'pass',
@@ -150,6 +155,29 @@ class ReviewerIntegrationTests(unittest.TestCase):
         with self.assertRaises(GovernanceError) as context:
             self._call_fake(self._passing_source("Prescriptive advice"))
         self.assertEqual(context.exception.verdict, "blocked")
+
+    def test_actionable_blocked_review_is_persisted(self):
+        source = f"""\
+            #!/usr/bin/env python3
+            import json, sys
+            output = sys.argv[sys.argv.index('-o') + 1]
+            with open(output, 'w', encoding='utf-8') as handle:
+                json.dump({{
+                    'verdict': 'blocked',
+                    'reviewer': 'architecture',
+                    'candidate_digest': '{self.candidate}',
+                    'contract_digest': '{self.contract}',
+                    'violations': [],
+                    'unverified': [{{
+                        'claim': 'Navigation gesture',
+                        'required_evidence': 'Minimum-iOS interaction result',
+                        'remediation': 'Run the edge-swipe scenario on the minimum supported runtime.',
+                        'requires_user_decision': False
+                    }}]
+                }}, handle)
+        """
+        review = self._call_fake(source)
+        self.assertEqual(review["unverified"][0]["remediation"], "Run the edge-swipe scenario on the minimum supported runtime.")
 
     def test_process_failure_blocks(self):
         with self.assertRaises(GovernanceError) as context:

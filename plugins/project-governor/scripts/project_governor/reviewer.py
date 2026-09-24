@@ -67,9 +67,11 @@ Candidate digest: {candidate_digest}
 Contract digest: {contract_digest}
 Reference mode: {reference_mode}
 
-Return only the requested JSON schema. Cite only active rule IDs. A violation must state the observed state, evidence-backed observation, contract/rule conflict, and evidence paths. Do not propose solutions, code changes, colors, components, layouts, or new requirements.
+Return only the requested JSON schema. Cite only active rule IDs. A violation must state the observed state, evidence-backed observation, contract/rule conflict, evidence paths, and a concrete remediation within the approved contract. An unverified claim must identify how to obtain the missing proof. Mark requires_user_decision true only if the available contracts and evidence cannot resolve a choice that belongs to the user. Remediation is guidance for the change agent, not a new rule. Do not edit the candidate or invent requirements.
 
 An empty approved-reference list is not missing evidence by itself. When reference mode is `novel`, review the new component directly from the approved contracts, factual ledger, candidate implementation, related project structures, and runtime evidence. Do not return `blocked` solely because no prior component, screenshot, or reference sample exists. Novel mode does not waive design-system search, active rules, accessibility, localization, state coverage, regression checks, or evidence required to prove interaction claims.
+
+For UI review, inspect the actual pixels of the current run's exported screenshot attachments in inputs/evidence/ui/ and match them to the recorded runtime, scenario, locale, and appearance. Do not infer visual appearance from filenames or logs alone. Use only bundled evidence: if a required view is absent, ask the change agent to diagnose with simctl first and use-computer if simctl cannot capture it, update a registered XCUITest scenario to attach that state, and rerun verify. A screenshot does not prove an interaction.
 
 If evidence required for a concrete active-rule claim is missing or cannot prove an interaction, return blocked with an unverified item. A pass requires empty violations and empty unverified arrays.
 """

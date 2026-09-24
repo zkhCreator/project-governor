@@ -3,7 +3,7 @@ Purpose: Enforce the narrow data contracts used by Project Governor.
 Responsibilities: Validate project config, change specs, ledgers, decisions, and reviewer output without third-party packages.
 Inputs/Outputs: Parsed JSON mappings in; normalized mappings or GovernanceError out.
 Non-goals: This module is not a general JSON Schema implementation.
-Key Design Decisions: Unknown fields are rejected for reviewer output so it cannot smuggle design advice into the loop.
+Key Design Decisions: Unknown fields are rejected; remediation is explicitly allowed only when attached to an evidence-backed finding.
 """
 
 from __future__ import annotations
@@ -22,8 +22,8 @@ REVIEW_KEYS = {
     "violations",
     "unverified",
 }
-VIOLATION_KEYS = {"rule_id", "state", "observation", "conflict", "evidence_refs"}
-UNVERIFIED_KEYS = {"claim", "required_evidence"}
+VIOLATION_KEYS = {"rule_id", "state", "observation", "conflict", "evidence_refs", "remediation", "requires_user_decision"}
+UNVERIFIED_KEYS = {"claim", "required_evidence", "remediation", "requires_user_decision"}
 LEDGER_KEYS = {
     "schema_version",
     "reused_structures",
@@ -186,17 +186,21 @@ def validate_review(
         _reject_extra(item, VIOLATION_KEYS, "violation")
         if item["rule_id"] not in allowed_rule_ids:
             raise GovernanceError("blocked", "Reviewer cited a rule that is not active", {"rule_id": item["rule_id"]})
-        for field in ("state", "observation", "conflict"):
+        for field in ("state", "observation", "conflict", "remediation"):
             if not isinstance(item[field], str) or not item[field].strip():
                 raise GovernanceError("blocked", f"violation.{field} must be non-empty")
+        if not isinstance(item["requires_user_decision"], bool):
+            raise GovernanceError("blocked", "violation.requires_user_decision must be a boolean")
         _string_list(item["evidence_refs"], "violation.evidence_refs", allow_empty=False)
     for unverified in review["unverified"]:
         item = _require_mapping(unverified, "unverified")
         _require_keys(item, UNVERIFIED_KEYS, "unverified")
         _reject_extra(item, UNVERIFIED_KEYS, "unverified")
-        for field in UNVERIFIED_KEYS:
+        for field in ("claim", "required_evidence", "remediation"):
             if not isinstance(item[field], str) or not item[field].strip():
                 raise GovernanceError("blocked", f"unverified.{field} must be non-empty")
+        if not isinstance(item["requires_user_decision"], bool):
+            raise GovernanceError("blocked", "unverified.requires_user_decision must be a boolean")
     if review["verdict"] == "pass" and (review["violations"] or review["unverified"]):
         raise GovernanceError("blocked", "A passing review cannot contain violations or unverified claims")
     if review["verdict"] == "fail" and not review["violations"]:

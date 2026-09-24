@@ -23,7 +23,7 @@ Feature work tends to accumulate screens, concepts, entry points, and one-off in
 | --- | --- |
 | [`project-governor-init`](plugins/project-governor/skills/project-governor-init/SKILL.md) | Inspect an iOS project, initialize `.governance`, or separately recalibrate an approved contract. |
 | [`project-governor-change`](plugins/project-governor/skills/project-governor-change/SKILL.md) | Prepare and implement a bounded feature change, collect evidence, and run the gate. |
-| [`project-governor-review`](plugins/project-governor/skills/project-governor-review/SKILL.md) | Rerun a read-only architecture or UI review without editing code or prescribing a solution. |
+| [`project-governor-review`](plugins/project-governor/skills/project-governor-review/SKILL.md) | Rerun a read-only architecture or UI review and provide contract-bound remediation without editing code. |
 
 ## How it works
 
@@ -158,7 +158,7 @@ Each reviewer runs in a fresh temporary directory through an ephemeral Codex pro
 - Current build, test, screenshot, and interaction evidence
 - Bound candidate, contract, and evidence digests
 
-It excludes the main implementation conversation, self-evaluation, prior reviewer conversations, and previous candidate results. Reviewers report rule conflicts and evidence gaps; they do not propose fixes or add temporary rules.
+It excludes the main implementation conversation, self-evaluation, prior reviewer conversations, and previous candidate results. Reviewers report rule conflicts and evidence gaps with remediation tied to approved contracts; they do not edit the candidate or add temporary rules.
 
 ## iOS and SwiftUI policy
 
@@ -171,6 +171,8 @@ The first release enforces several platform-specific boundaries:
 - Use project semantic colors, localization, and light/dark-mode policy.
 - Require both the minimum supported pre-iOS-26 runtime and iOS 26+ evidence for navigation changes.
 - Use registered XCUITest scenarios and exported `.xcresult` attachments for interaction claims.
+
+For visual review, inspect the exported screenshot images themselves. When a needed state is missing, the change agent should use `simctl` to capture the verified Simulator for diagnosis, with `use-computer` as the fallback. Update a registered XCUITest scenario to attach that state and rerun `verify` before the independent reviewer can use it as evidence.
 
 ## Development and validation
 

@@ -77,7 +77,12 @@ def _synthetic_blocked_review(
         "candidate_digest": candidate_digest,
         "contract_digest": contract_digest,
         "violations": [],
-        "unverified": [{"claim": f"{reviewer} review could not complete", "required_evidence": message}],
+        "unverified": [{
+            "claim": f"{reviewer} review could not complete",
+            "required_evidence": message,
+            "remediation": f"Inspect the {reviewer} reviewer stdout/stderr logs, resolve the execution error ({message}), and rerun the independent review.",
+            "requires_user_decision": False,
+        }],
     }
 
 
@@ -205,6 +210,7 @@ def verify_change(root: Path, change_id: str) -> Dict[str, Any]:
         },
         "blocked_reasons": gate["blocked_reasons"],
         "failure_reasons": gate["failure_reasons"],
+        "resolution_steps": gate["resolution_steps"],
         "completed_at": utc_now(),
     }
     write_json(change_root / "result.json", result)
@@ -215,7 +221,13 @@ def _latest_run(root: Path) -> str:
     runs = governance_root(root) / ".runs"
     candidates = sorted(path.name for path in runs.iterdir() if path.is_dir()) if runs.exists() else []
     if not candidates:
-        raise GovernanceError("blocked", "No Project Governor run exists")
+        raise GovernanceError("blocked", "No Project Governor run exists", {
+            "resolution_steps": [{
+                "issue": "No reviewable run",
+                "action": "Prepare the change and run verify to create a frozen candidate and evidence bundle.",
+                "requires_user_decision": False,
+            }],
+        })
     return candidates[-1]
 
 
@@ -226,19 +238,48 @@ def review_existing(
 ) -> Dict[str, Any]:
     """Rerun one or all required reviewers against a still-current candidate."""
 
-    load_project(root)
-    lock = load_lock(root)
+    try:
+        load_project(root)
+        lock = load_lock(root)
+    except GovernanceError as exc:
+        raise GovernanceError(exc.verdict, exc.message, {
+            **exc.details,
+            "resolution_steps": [{
+                "issue": "Project Governor is not ready",
+                "action": "Initialize Project Governor for this repository or restore its approved governance files, then run verify before review.",
+                "requires_user_decision": False,
+            }],
+        }) from exc
     selected_run = run_id or _latest_run(root)
     run_dir = governance_root(root) / ".runs" / selected_run
     if not run_dir.is_dir():
-        raise GovernanceError("blocked", "Requested run does not exist", {"run_id": selected_run})
+        raise GovernanceError("blocked", "Requested run does not exist", {
+            "run_id": selected_run,
+            "resolution_steps": [{
+                "issue": "Run not found",
+                "action": "Use an existing run ID or run verify to create a new reviewable run.",
+                "requires_user_decision": False,
+            }],
+        })
     run_state = read_json(run_dir / "run.json")
     manifest = read_json(run_dir / "candidate-manifest.json")
     current_manifest = build_manifest(root)
     if current_manifest["digest"] != manifest["digest"]:
-        raise GovernanceError("blocked", "The project no longer matches the frozen candidate")
+        raise GovernanceError("blocked", "The project no longer matches the frozen candidate", {
+            "resolution_steps": [{
+                "issue": "Candidate changed",
+                "action": "Run verify again to freeze the current candidate and regenerate its evidence before review.",
+                "requires_user_decision": False,
+            }],
+        })
     if governance_digest(root) != run_state["contract_digest"]:
-        raise GovernanceError("blocked", "The governance contract changed after the run")
+        raise GovernanceError("blocked", "The governance contract changed after the run", {
+            "resolution_steps": [{
+                "issue": "Contract changed",
+                "action": "Restore the approved contract and rerun verify; if the change is intentional, obtain a separate governance decision and prepare a new run.",
+                "requires_user_decision": False,
+            }],
+        })
     requested = run_state["required_reviewers"] if reviewer == "both" else [reviewer]
     unavailable = sorted(set(requested) - set(run_state["required_reviewers"]))
     if unavailable:
@@ -264,4 +305,5 @@ def review_existing(
         },
         "blocked_reasons": gate["blocked_reasons"],
         "failure_reasons": gate["failure_reasons"],
+        "resolution_steps": gate["resolution_steps"],
     }

@@ -96,14 +96,28 @@ class GateTests(unittest.TestCase):
         unverified = self.state()
         unverified["reviews"]["architecture"]["verdict"] = "blocked"
         unverified["reviews"]["architecture"]["unverified"] = [
-            {"claim": "Interaction", "required_evidence": "XCUITest"}
+            {"claim": "Interaction", "required_evidence": "XCUITest", "remediation": "Run the gesture scenario.", "requires_user_decision": False}
         ]
-        self.assertEqual(evaluate_gate(unverified)["verdict"], "blocked")
+        result = evaluate_gate(unverified)
+        self.assertEqual(result["verdict"], "blocked")
+        self.assertTrue(any(step["action"] == "Run the gesture scenario." for step in result["resolution_steps"]))
 
     def test_reviewer_failure_fails(self):
         state = self.state()
         state["reviews"]["architecture"]["verdict"] = "fail"
         self.assertEqual(evaluate_gate(state)["verdict"], "fail")
+
+    def test_review_remediation_and_user_decision_are_surfaced(self):
+        state = self.state()
+        state["reviews"]["architecture"]["verdict"] = "fail"
+        state["reviews"]["architecture"]["violations"] = [{
+            "rule_id": "ARCH-001",
+            "remediation": "Choose the approved ownership boundary.",
+            "requires_user_decision": True,
+        }]
+        result = evaluate_gate(state)
+        self.assertEqual(result["resolution_steps"][0]["action"], "Choose the approved ownership boundary.")
+        self.assertTrue(result["resolution_steps"][0]["requires_user_decision"])
 
     def test_reviewer_digest_mismatch_blocks(self):
         state = self.state()

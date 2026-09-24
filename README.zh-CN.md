@@ -23,7 +23,7 @@ Project Governor 是一个面向 iOS 与 SwiftUI 项目的 Codex 插件。它通
 | --- | --- |
 | [`project-governor-init`](plugins/project-governor/skills/project-governor-init/SKILL.md) | 扫描 iOS 项目、初始化 `.governance`，或单独重新校准已批准契约。 |
 | [`project-governor-change`](plugins/project-governor/skills/project-governor-change/SKILL.md) | 准备并实现一次有边界的功能变更，收集证据并执行 gate。 |
-| [`project-governor-review`](plugins/project-governor/skills/project-governor-review/SKILL.md) | 重新执行只读架构或 UI 评审，不修改代码，也不规定解决方案。 |
+| [`project-governor-review`](plugins/project-governor/skills/project-governor-review/SKILL.md) | 重新执行只读架构或 UI 评审，不修改代码；根据已批准契约提供具体修复路径。 |
 
 ## 工作流程
 
@@ -158,7 +158,7 @@ python3 plugins/project-governor/scripts/governor.py inspect \
 - 当前构建、测试、截图与交互证据
 - 已绑定的候选、契约和证据摘要
 
-bundle 不包含 main agent 的实现对话、自我评价、旧 reviewer 对话或旧候选结果。reviewer 只报告规则冲突与证据缺口，不提供修改方案，也不能临时新增规则。
+bundle 不包含 main agent 的实现对话、自我评价、旧 reviewer 对话或旧候选结果。reviewer 报告规则冲突与证据缺口，并给出受已批准契约约束的修复路径；不能修改候选或临时新增规则。
 
 ## iOS 与 SwiftUI 规则
 
@@ -171,6 +171,8 @@ bundle 不包含 main agent 的实现对话、自我评价、旧 reviewer 对话
 - 使用项目自己的语义颜色、本地化与明暗模式策略。
 - 导航变更必须同时提供最低支持的 pre-iOS-26 runtime 与 iOS 26+ 证据。
 - 交互结论必须来自已登记的 XCUITest 场景和导出的 `.xcresult` 附件。
+
+视觉评审需打开并检查导出的截图本身。缺少必要状态时，变更 agent 优先用 `simctl` 对已验证的模拟器截图排查，无法截图时再用 `use-computer`。更新已登记的 XCUITest 场景，在该状态附上截图并重跑 `verify` 后，独立 reviewer 才能将其作为证据。
 
 ## 开发与验证
 

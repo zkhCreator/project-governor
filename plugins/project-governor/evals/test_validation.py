@@ -1,9 +1,9 @@
 """
 Purpose: Verify strict Project Governor JSON validation behavior.
-Responsibilities: Cover change reference modes, valid reviews, forbidden advice fields, unknown rules, and verdict invariants.
+Responsibilities: Cover change reference modes, actionable review findings, unknown fields and rules, and verdict invariants.
 Inputs/Outputs: In-memory fixture dictionaries in; unittest assertions out.
 Non-goals: These tests do not invoke Codex or inspect an Xcode project.
-Key Design Decisions: Reviewer output remains narrow so feedback cannot prescribe implementation.
+Key Design Decisions: Remediation belongs to a specific finding and cannot add an uncited rule.
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ class ReviewValidationTests(unittest.TestCase):
             "pass",
         )
 
-    def test_rejects_solution_field(self):
+    def test_rejects_unattached_solution_field(self):
         review = self.base_review()
         review["solution"] = "Add another card"
         with self.assertRaises(GovernanceError) as context:
@@ -68,6 +68,8 @@ class ReviewValidationTests(unittest.TestCase):
                 "observation": "Observation",
                 "conflict": "Conflict",
                 "evidence_refs": ["candidate/File.swift"],
+                "remediation": "Use the approved structure.",
+                "requires_user_decision": False,
             }
         ]
         with self.assertRaises(GovernanceError):
@@ -75,7 +77,38 @@ class ReviewValidationTests(unittest.TestCase):
 
     def test_pass_cannot_hide_unverified_claim(self):
         review = self.base_review()
-        review["unverified"] = [{"claim": "Back gesture", "required_evidence": "XCUITest"}]
+        review["unverified"] = [{"claim": "Back gesture", "required_evidence": "XCUITest", "remediation": "Run the back-gesture XCUITest on the minimum runtime.", "requires_user_decision": False}]
+        with self.assertRaises(GovernanceError):
+            validate_review(review, "architecture", "a" * 64, "b" * 64, {"ARCH-001"})
+
+    def test_violation_requires_actionable_remediation(self):
+        review = self.base_review()
+        review["verdict"] = "fail"
+        review["violations"] = [{
+            "rule_id": "ARCH-001",
+            "state": "default",
+            "observation": "The candidate duplicates the approved owner.",
+            "conflict": "ARCH-001 requires one owner.",
+            "evidence_refs": ["candidate/File.swift"],
+            "remediation": "Move the duplicated state into the approved owner and rerun review.",
+            "requires_user_decision": False,
+        }]
+        self.assertEqual(validate_review(review, "architecture", "a" * 64, "b" * 64, {"ARCH-001"})["verdict"], "fail")
+        review["violations"][0]["remediation"] = " "
+        with self.assertRaises(GovernanceError):
+            validate_review(review, "architecture", "a" * 64, "b" * 64, {"ARCH-001"})
+
+    def test_blocked_requires_remediation_and_decision_flag(self):
+        review = self.base_review()
+        review["verdict"] = "blocked"
+        review["unverified"] = [{
+            "claim": "Back gesture",
+            "required_evidence": "Minimum-iOS interaction result",
+            "remediation": "Run the back-gesture scenario on the minimum supported iOS runtime.",
+            "requires_user_decision": False,
+        }]
+        self.assertEqual(validate_review(review, "architecture", "a" * 64, "b" * 64, {"ARCH-001"})["verdict"], "blocked")
+        review["unverified"][0]["requires_user_decision"] = "no"
         with self.assertRaises(GovernanceError):
             validate_review(review, "architecture", "a" * 64, "b" * 64, {"ARCH-001"})
 
