@@ -29,6 +29,7 @@ Adding a structure is not forbidden, but it must be visible. Do not use a mechan
 
 ## Result handling
 
+- `pending` / `awaiting_review`: checks and snapshot exported; dispatch the returned fresh in-session reviewers and submit their exact envelopes. Exit code 0 means a successful handoff, not gate approval. `gate.json` remains blocked until every required review exists.
 - `pass`: all required checks, evidence, digests, and reviewers agree.
 - `fail`: a test or active rule has an evidence-backed violation. Revise the solution, not the rule.
 - `blocked`: evidence required for a concrete active-rule claim, tooling, version, runtime, or approval is unavailable. A missing prior reference alone is not a blocking reason for a declared novel component.

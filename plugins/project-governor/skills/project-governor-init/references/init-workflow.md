@@ -22,3 +22,7 @@ An empty approved-reference index is valid. Do not block initialization merely b
 ## Recalibrate
 
 Use `recalibrate --accept-current` after a deliberately reviewed contract edit. Add approved exceptions through a decision JSON containing `id`, `summary`, `status: approved`, `rationale`, and `exceptions`. Recalibration updates the locked governance digest and requires subsequent feature candidates to start from the new baseline.
+
+## Reviewer transport updates
+
+For an explicitly authorized governance update, set `review_policy.transport` to `in-session` when the host supports fresh no-history subagents. Keep architecture/UI requirements, commands, rule packs and revision limits intact, document the transport decision, then run `recalibrate --accept-current`. Future changes must prepare against that baseline. Do not retroactively approve or rewrite earlier blocked/pending runs. `codex-cli` remains the compatibility default when the field is absent; it is not an automatic fallback for an in-session project.

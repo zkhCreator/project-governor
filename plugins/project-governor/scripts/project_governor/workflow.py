@@ -32,6 +32,8 @@ def plugin_root() -> Path:
 
 def _directory_manifest(root: Path) -> Dict[str, Any]:
     entries = []
+    if root.is_symlink() or (root.exists() and any(path.is_symlink() for path in root.rglob("*"))):
+        raise GovernanceError("blocked", "Evidence contains symlinks; use regular files inside the evidence directory")
     if root.exists():
         for path in sorted(item for item in root.rglob("*") if item.is_file() and not item.is_symlink()):
             entries.append(
@@ -183,8 +185,12 @@ def verify_change(root: Path, change_id: str) -> Dict[str, Any]:
         "pending_exceptions": ledger["exception_requests"],
         "reviewer_timeout_seconds": int(project.get("review_policy", {}).get("reviewer_timeout_seconds", 900)),
         "reviews": {},
+        "review_transport": project["review_policy"].get("transport", "codex-cli"),
     }
     write_json(run_dir / "run.json", run_state)
+    if run_state["review_transport"] == "in-session":
+        from .session_review import start_session_review
+        return start_session_review(root, run_dir, run_state, manifest)
     run_state["reviews"] = _run_required_reviewers(root, run_dir, run_state, manifest, lock)
     final_manifest = build_manifest(root)
     run_state["candidate_stable"] = final_manifest["digest"] == manifest["digest"]
@@ -280,6 +286,9 @@ def review_existing(
                 "requires_user_decision": False,
             }],
         })
+    if run_state.get("review_transport") == "in-session":
+        from .session_review import session_status
+        return session_status(root, selected_run)
     requested = run_state["required_reviewers"] if reviewer == "both" else [reviewer]
     unavailable = sorted(set(requested) - set(run_state["required_reviewers"]))
     if unavailable:
