@@ -83,6 +83,13 @@ def build_parser() -> argparse.ArgumentParser:
     review.add_argument("--run-id")
     review.add_argument("--reviewer", choices=["architecture", "ui", "both"], default="both")
 
+    submit = subparsers.add_parser("review-submit", help="Validate a fresh in-session subagent response")
+    _add_root(submit)
+    submit.add_argument("--run-id", required=True)
+    submit.add_argument("--reviewer", choices=["architecture", "ui"], required=True)
+    submit.add_argument("--agent-id", required=True, help="ID returned by the fresh subagent spawn")
+    submit.add_argument("--response", type=Path, required=True)
+
     subparsers.add_parser("eval", help="Run Project Governor runtime tests")
     return parser
 
@@ -123,6 +130,10 @@ def _dispatch(args: argparse.Namespace) -> Dict[str, Any]:
             args.non_goal,
             args.reference_mode,
         )
+    if args.command == "review-submit":
+        from .session_review import submit_session_review
+        return submit_session_review(args.project_root, args.run_id, args.reviewer,
+                                     args.agent_id, args.response)
     if args.command == "verify":
         return verify_change(args.project_root, args.change_id)
     if args.command == "review":
@@ -133,6 +144,7 @@ def _dispatch(args: argparse.Namespace) -> Dict[str, Any]:
 def _exit_for(verdict: str) -> int:
     return {
         "pass": EXIT_PASS,
+        "pending": EXIT_PASS,  # Successful handoff; never a passing gate.
         "fail": EXIT_FAIL,
         "blocked": EXIT_BLOCKED,
         "error": EXIT_ERROR,

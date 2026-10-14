@@ -87,6 +87,8 @@ def validate_project(value: Any) -> Dict[str, Any]:
         raise GovernanceError("error", "commands and ui_scenarios must be arrays")
     if not isinstance(project["review_policy"], dict) or not isinstance(project["ios"], dict):
         raise GovernanceError("error", "review_policy and ios must be objects")
+    if project["review_policy"].get("transport", "codex-cli") not in {"codex-cli", "in-session"}:
+        raise GovernanceError("error", "review_policy.transport must be codex-cli or in-session")
     _string_list(project["protected_paths"], "protected_paths")
     _string_list(project["rule_packs"], "rule_packs", allow_empty=False)
     return project
