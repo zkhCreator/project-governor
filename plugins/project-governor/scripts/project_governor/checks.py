@@ -4,13 +4,14 @@ Responsibilities: Run argv-only commands, persist logs, execute registered XCUIT
 Inputs/Outputs: Project configuration and evidence directory in; structured check records out.
 Non-goals: This module does not judge design quality or convert missing evidence into a pass.
 Key Design Decisions: Tool absence and timeouts are blocked; non-zero product checks are failures; UI claims require exported attachments.
+Explicit simulator IDs preserve required runtime classes and the full configured UI matrix; destinations use stable UDIDs.
 """
 
 from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Sequence
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence
 
 from .ios import inspect_project, resolve_runtime_devices
 from .util import run_command, sha256_file, write_json, write_text
@@ -108,6 +109,7 @@ def run_ui_checks(
     project: Mapping[str, Any],
     evidence_dir: Path,
     navigation_changed: bool,
+    ui_device_ids: Optional[Iterable[str]] = None,
 ) -> Dict[str, Any]:
     """Run the registered XCUITest evidence matrix and export screenshots."""
 
@@ -124,7 +126,7 @@ def run_ui_checks(
         navigation_changed
         and project.get("ios", {}).get("require_pre26_and_ios26_for_navigation", True)
     )
-    devices, missing = resolve_runtime_devices(inspection, minimum, require_compatibility)
+    devices, missing = resolve_runtime_devices(inspection, minimum, require_compatibility, ui_device_ids)
     if missing:
         return {
             "status": "blocked",
@@ -156,7 +158,7 @@ def run_ui_checks(
                     result_bundle = ui_root / f"{run_id}.xcresult"
                     attachments = ui_root / f"{run_id}-attachments"
                     destination = (
-                        f"platform=iOS Simulator,name={device['name']},OS={device['runtime']}"
+                        f"platform=iOS Simulator,id={device['udid']}"
                     )
                     argv = [
                         "xcodebuild",
@@ -222,6 +224,7 @@ def run_ui_checks(
                             "test_identifier": identifier,
                             "runtime": device["runtime"],
                             "device": device["name"],
+                            "device_udid": device["udid"],
                             "language": language,
                             "appearance": appearance,
                             "status": status,

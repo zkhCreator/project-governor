@@ -8,13 +8,16 @@ Key Design Decisions: Initial verification plus at most two revisions are allowe
 
 from __future__ import annotations
 
+import shutil
 import time
+import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, Mapping, Optional
 
 from . import VERSION
 from .checks import run_automatic_checks, run_ui_checks
 from .errors import GovernanceError
+from .evidence import import_evidence
 from .gate import evaluate_gate, write_report
 from .ios import navigation_impact, ui_impact
 from .reviewer import run_reviewer
@@ -126,7 +129,8 @@ def _run_required_reviewers(
     return reviews
 
 
-def verify_change(root: Path, change_id: str) -> Dict[str, Any]:
+def verify_change(root: Path, change_id: str, evidence_manifest_path: Optional[Path] = None,
+                  ui_device_ids: Optional[Iterable[str]] = None) -> Dict[str, Any]:
     """Run the complete gate for a newly frozen candidate."""
 
     project = load_project(root)
@@ -142,19 +146,27 @@ def verify_change(root: Path, change_id: str) -> Dict[str, Any]:
         )
 
     manifest = build_manifest(root)
-    timestamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
-    run_id = f"{change_id}-{timestamp}-{manifest['digest'][:12]}"
+    started_ns = time.time_ns()
+    timestamp = time.strftime("%Y%m%dT%H%M%S", time.gmtime(started_ns // 1_000_000_000))
+    timestamp += f"{started_ns % 1_000_000_000:09d}Z"
+    run_id = f"{change_id}-{timestamp}-{manifest['digest'][:12]}-{uuid.uuid4().hex[:8]}"
     run_dir = governance_root(root) / ".runs" / run_id
     evidence_dir = run_dir / "evidence"
     evidence_dir.mkdir(parents=True, exist_ok=False)
     write_json(run_dir / "candidate-manifest.json", manifest)
+    try:
+        supplemental = import_evidence(root, evidence_manifest_path, evidence_dir)
+    except BaseException:
+        # This directory was created exclusively by this invocation; never remove a prior run.
+        shutil.rmtree(run_dir)
+        raise
 
     changed = changed_paths(root)
     requires_ui = ui_impact(changed, spec["ui_impact"], root)
     navigation_changed = navigation_impact(changed, root)
     automatic_checks = run_automatic_checks(root, project.get("commands", []), evidence_dir)
     ui_evidence = (
-        run_ui_checks(root, project, evidence_dir, navigation_changed)
+        run_ui_checks(root, project, evidence_dir, navigation_changed, ui_device_ids)
         if requires_ui
         else {"status": "not_required", "runs": []}
     )
@@ -178,7 +190,8 @@ def verify_change(root: Path, change_id: str) -> Dict[str, Any]:
         "required_reviewers": ["architecture"] + (["ui"] if requires_ui else []),
         "automatic_checks": automatic_checks,
         "ui_evidence": ui_evidence,
-        "candidate_stable": False,
+        "candidate_stable": build_manifest(root)["digest"] == manifest["digest"],
+        "supplemental_evidence": supplemental,
         "protected_state_stable": current_contract_digest == spec["baseline_governance_digest"],
         "version_consistent": _version_consistent(project, lock),
         "evidence_stable": True,
@@ -289,6 +302,8 @@ def review_existing(
     if run_state.get("review_transport") == "in-session":
         from .session_review import session_status
         return session_status(root, selected_run)
+    run_state["candidate_stable"] = current_manifest["digest"] == manifest["digest"]
+    run_state["protected_state_stable"] = True  # Contract equality checked above.
     requested = run_state["required_reviewers"] if reviewer == "both" else [reviewer]
     unavailable = sorted(set(requested) - set(run_state["required_reviewers"]))
     if unavailable:
@@ -297,8 +312,10 @@ def review_existing(
         root, run_dir, run_state, manifest, lock, only=requested
     )
     evidence_manifest = read_json(run_dir / "evidence-manifest.json")
-    run_state["candidate_stable"] = True
-    run_state["protected_state_stable"] = True
+    ending_manifest = build_manifest(root)
+    run_state["candidate_stable"] = ending_manifest["digest"] == manifest["digest"]
+    run_state["ending_candidate_digest"] = ending_manifest["digest"]
+    run_state["protected_state_stable"] = governance_digest(root) == run_state["contract_digest"]
     run_state["evidence_stable"] = (
         _directory_manifest(run_dir / "evidence")["digest"] == evidence_manifest["digest"]
     )
@@ -306,7 +323,13 @@ def review_existing(
     gate = evaluate_gate(run_state)
     write_json(run_dir / "gate.json", gate)
     write_report(run_dir / "report.md", run_state, gate)
-    return {
+    result = {
+        "change_id": run_state["change_id"],
+        "candidate_digest": run_state["candidate_digest"],
+        "contract_digest": run_state["contract_digest"],
+        "evidence_digest": run_state["evidence_digest"],
+        "attempt": run_state["attempt"],
+        "completed_at": utc_now(),
         "run_id": selected_run,
         "verdict": gate["verdict"],
         "review_verdicts": {
@@ -316,3 +339,6 @@ def review_existing(
         "failure_reasons": gate["failure_reasons"],
         "resolution_steps": gate["resolution_steps"],
     }
+
+    write_json(governance_root(root) / "changes" / run_state["change_id"] / "result.json", result)
+    return result

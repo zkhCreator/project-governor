@@ -77,6 +77,8 @@ def build_parser() -> argparse.ArgumentParser:
     verify = subparsers.add_parser("verify", help="Run checks, evidence, reviewers, and gate")
     _add_root(verify)
     verify.add_argument("--change-id", required=True)
+    verify.add_argument("--evidence-manifest", type=Path, help="Import a manifest and artifacts from the project evidence directory")
+    verify.add_argument("--ui-device", action="append", default=None, help="Use this simulator UDID for UI evidence; repeat for required runtime classes")
 
     review = subparsers.add_parser("review", help="Rerun independent review for an existing run")
     _add_root(review)
@@ -135,7 +137,7 @@ def _dispatch(args: argparse.Namespace) -> Dict[str, Any]:
         return submit_session_review(args.project_root, args.run_id, args.reviewer,
                                      args.agent_id, args.response)
     if args.command == "verify":
-        return verify_change(args.project_root, args.change_id)
+        return verify_change(args.project_root, args.change_id, args.evidence_manifest, args.ui_device)
     if args.command == "review":
         return review_existing(args.project_root, args.run_id, args.reviewer)
     raise GovernanceError("error", f"Unsupported command: {args.command}")

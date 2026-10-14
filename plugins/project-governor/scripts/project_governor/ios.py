@@ -206,10 +206,19 @@ def resolve_runtime_devices(
     inspection: Dict[str, Any],
     minimum_ios: Optional[str],
     require_legacy_and_modern: bool,
+    preferred_udids: Optional[Iterable[str]] = None,
 ) -> Tuple[List[Dict[str, str]], List[str]]:
-    """Choose one iPhone per required runtime class and explain missing classes."""
+    """Choose one available iPhone per required runtime class; explicit IDs never waive a required class."""
 
     devices = inspection.get("simulator_devices", [])
+    requested = list(preferred_udids) if preferred_udids is not None else None
+    if requested is not None:
+        if not requested or len(set(requested)) != len(requested):
+            return [], ["Explicit UI simulator IDs must be nonempty and unique."]
+        unavailable = set(requested) - {item["udid"] for item in devices}
+        if unavailable:
+            return [], ["Requested UI simulator is unavailable: " + value for value in sorted(unavailable)]
+        devices = [item for item in devices if item["udid"] in requested]
     selected: List[Dict[str, str]] = []
     missing: List[str] = []
     if require_legacy_and_modern and minimum_ios and _version_tuple(minimum_ios) < (26,):
@@ -233,4 +242,6 @@ def resolve_runtime_devices(
             selected.append(newest)
         else:
             missing.append("an available iPhone simulator")
+    if requested is not None and not missing and {item["udid"] for item in selected} != set(requested):
+        missing.append("Provide exactly one explicit simulator per required runtime class.")
     return selected, missing

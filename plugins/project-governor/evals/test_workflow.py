@@ -24,7 +24,8 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from project_governor.state import initialize_project, prepare_change, recalibrate_project
 from project_governor.util import read_json, write_json
-from project_governor.workflow import verify_change
+from project_governor.workflow import verify_change, _latest_run
+from project_governor.errors import GovernanceError
 
 
 class WorkflowIntegrationTests(unittest.TestCase):
@@ -108,12 +109,26 @@ class WorkflowIntegrationTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
+            (root / ".gitignore").write_text("evidence/\n", encoding="utf-8")
+            evidence = root / "evidence"
+            evidence.mkdir()
+            (evidence / "measurement.txt").write_text("captured measurement", encoding="utf-8")
+            write_json(evidence / "import.json", {"schema_version": 1, "artifacts": [
+                {"path": "evidence/measurement.txt", "description": "Fixture measurement"}
+            ]})
             fake = Path(temporary) / "fake-codex.py"
             fake.write_text(
                 textwrap.dedent(
                     """\
                     #!/usr/bin/env python3
                     import json, re, sys
+                    from pathlib import Path
+                    run = json.loads(Path('inputs/run.json').read_text())
+                    assert run['candidate_stable'] is True
+                    imported = json.loads(Path('inputs/evidence/supplemental/index.json').read_text())
+                    artifact = imported['artifacts'][0]
+                    assert (Path('inputs/evidence') / artifact['path']).read_text() == 'captured measurement'
+                    assert artifact['provenance_verified_by_import'] is False
                     prompt = sys.argv[-1]
                     candidate = re.search(r'Candidate digest: ([0-9a-f]{64})', prompt).group(1)
                     contract = re.search(r'Contract digest: ([0-9a-f]{64})', prompt).group(1)
@@ -135,7 +150,18 @@ class WorkflowIntegrationTests(unittest.TestCase):
             previous = os.environ.get("PROJECT_GOVERNOR_CODEX")
             os.environ["PROJECT_GOVERNOR_CODEX"] = str(fake)
             try:
-                result = verify_change(root, "add-domain-helper")
+                write_json(evidence / "bad.json", {"schema_version": 1, "artifacts": [
+                    {"path": "evidence/missing", "description": "Missing artifact"}
+                ]})
+                with self.assertRaises(GovernanceError):
+                    verify_change(root, "add-domain-helper", evidence / "bad.json")
+                self.assertEqual(list((root / ".governance" / ".runs").iterdir()), [])
+                with patch("project_governor.workflow.time.time_ns", return_value=1_700_000_000_100_000_000):
+                    first = verify_change(root, "add-domain-helper", evidence / "import.json")
+                with patch("project_governor.workflow.time.time_ns", return_value=1_700_000_000_200_000_000):
+                    result = verify_change(root, "add-domain-helper", evidence / "import.json")
+                self.assertNotEqual(first["run_id"], result["run_id"])
+                self.assertEqual(_latest_run(root), result["run_id"])
             finally:
                 if previous is None:
                     os.environ.pop("PROJECT_GOVERNOR_CODEX", None)
