@@ -2,6 +2,7 @@
 Responsibilities: Cover successful copies, explicit provenance, missing files, path escape, symlinks and expected hashes.
 Inputs/Outputs: Disposable files and manifests produce copied bytes or blocked errors.
 Non-goals: Does not simulate reviewer judgment or certify performance.
+Key Decisions: Each case uses an isolated temporary project so path and symlink rejection exercise the real importer.
 """
 import json
 from pathlib import Path
