@@ -8,6 +8,8 @@ Before implementation, capture the user goal, observable acceptance criteria, ow
 
 Search approved references, the existing design system, and related surfaces before implementation.
 
+Register approved designs as Figma nodes (`source` URL plus `figma_node`) in `references/index.json` rather than copying screenshots or MCP code dumps into the project. `.governance/changes/` is local working state: projects may ignore it in Git, record verification conclusions in the pull request, and rerun verification on another machine instead of importing old run output.
+
 - `approved`: a semantically relevant approved reference exists and should be included in review.
 - `novel`: the component is genuinely new and no semantically relevant approved reference exists. Record the new concept or interaction in the ledger and send it directly to review.
 - `auto`: use only when the classification can remain safely inferred from the candidate and ledger.
