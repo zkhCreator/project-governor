@@ -2,6 +2,7 @@
 Responsibilities: Check runtime requirements, exact device targeting and all language/appearance/scenario combinations.
 Inputs/Outputs: A synthetic simulator inventory and mocked process/file outputs produce real routing and check results.
 Non-goals: Does not claim iOS behavior or validate actual screenshots; existing runtime tests remain required.
+Key Decisions: Only simctl and process boundaries are mocked; routing and matrix expansion run unmodified.
 """
 import sys
 import tempfile

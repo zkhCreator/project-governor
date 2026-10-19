@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The project fol
 
 ## Unreleased
 
+- Add the `in-session` review transport: `review_policy.transport: in-session` exports frozen, read-only review requests for fresh host-spawned subagents, and `review-submit` validates and records each exact response against its request, bundle, and evidence digests.
+- Preserve supplemental evidence across verification and isolate UI-test destinations per run.
 - Allow declared novel components with no prior reference sample to proceed directly to review while preserving all active-rule and runtime-evidence requirements.
 - Add public-repository governance, privacy, security, contribution, and release-readiness standards.
 - Add automated public-release auditing, GitHub Actions validation, CodeQL, issue forms, and pull-request templates.

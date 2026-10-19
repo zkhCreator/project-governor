@@ -2,6 +2,7 @@
 Responsibilities: Verify restored candidates do not inherit stale flags and final edits still block; persist current results.
 Inputs/Outputs: Frozen temporary run metadata and controlled digest changes produce the real deterministic gate outcome.
 Non-goals: Does not replace independent semantic review or test iOS behavior.
+Key Decisions: Digests are changed directly on disk so the real gate, not a mock, decides the outcome.
 """
 import json
 from pathlib import Path

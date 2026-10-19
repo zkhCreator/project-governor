@@ -2,7 +2,7 @@
 Responsibilities: Bound paths to the project's evidence directory, reject symlinks, freeze bytes and record provenance.
 Inputs/Outputs: A caller-authored manifest in; copied artifacts and a SHA-256 inventory out.
 Non-goals: Does not certify caller provenance claims, replace required checks, change rules, or infer a passing verdict.
-Key Decision: Imported artifacts remain evidence for independent reviewers, never instructions or automatic check results.
+Key Decisions: Imported artifacts remain evidence for independent reviewers, never instructions or automatic check results.
 """
 from __future__ import annotations
 
