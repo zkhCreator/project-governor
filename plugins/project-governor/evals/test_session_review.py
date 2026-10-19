@@ -103,6 +103,14 @@ class SessionReviewTests(unittest.TestCase):
             self.assertNotIn("review_requests", inputs)
             self.assertEqual((bundle / "REVIEW_INSTRUCTIONS.md").stat().st_mode & 0o222, 0)
 
+    def test_session_instructions_cover_figma_node_references(self):
+        self.start(ui=True)
+        state = read_json(self.run_dir / "run.json")
+        for request in state["review_requests"].values():
+            instructions = (self.run_dir / request["bundle"] / "REVIEW_INSTRUCTIONS.md").read_text(encoding="utf-8")
+            self.assertIn("registered as a Figma node", instructions)
+            self.assertIn("never judge the design from memory", instructions)
+
     def test_invalid_bindings_and_schema_are_rejected_without_accepting_review(self):
         self.start()
         mutations = [lambda r: r.update(request_id="old-request"),

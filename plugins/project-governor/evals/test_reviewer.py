@@ -108,6 +108,8 @@ class ReviewerIntegrationTests(unittest.TestCase):
             assert 'Reference mode: {reference_mode}' in prompt
             assert 'empty approved-reference list is not missing evidence by itself' in prompt
             assert 'concrete remediation' in prompt
+            assert 'registered as a Figma node' in prompt
+            assert 'never judge the design from memory' in prompt
             if '{reviewer}' == 'ui':
                 assert 'inspect the actual pixels' in prompt
                 assert 'simctl first and use-computer if simctl cannot capture it' in prompt

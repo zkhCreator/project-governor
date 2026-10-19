@@ -4,6 +4,7 @@
 
 - frozen candidate files and candidate manifest;
 - approved architecture, UI, and task contracts;
+- approved references, including Figma nodes fetched at review time;
 - active rule packs and approved decision records;
 - current change spec and factual change ledger;
 - current automated-check logs, screenshots, and interaction results.
@@ -15,6 +16,10 @@ Do not use main-agent chat history, self-evaluation, previous candidate reviews,
 Open the image files referenced by the current `inputs/evidence/ui/index.json` and inspect their pixels; an attachment path or passing test log alone does not establish visual appearance. Check that the screenshot belongs to the candidate, simulator runtime, scenario, locale, and appearance under review.
 
 When a required view is missing, the change agent should first use `xcrun simctl io <UDID> screenshot <temporary-path>` on the simulator running the verified candidate, then open the resulting PNG. If `simctl` is unavailable or cannot capture that state, use `use-computer` to inspect Simulator. Record the device, OS, scenario, locale, appearance, and candidate identity for diagnosis. Update the registered XCUITest scenario to attach that state and rerun `verify` to freeze new evidence before independent review. The isolated reviewer must not use an unbound live screen or capture as verdict evidence. Neither screenshot method replaces the registered XCUITest result needed for an interaction claim.
+
+## Figma-node references
+
+An approved reference may be registered in `references/index.json` as a Figma file URL and `figma_node` with no local screenshot. Fetch exactly that node through an available Figma tool (screenshot or design context) and compare it with the bundled runtime screenshots. This is the only input permitted outside the bundle. If Figma is unavailable or the node cannot be read, return the comparison as unverified and name how to obtain it; never judge the design from memory, filenames, or the index text alone.
 
 ## Verdicts
 
